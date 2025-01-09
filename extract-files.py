@@ -32,6 +32,8 @@ lib_fixups: lib_fixups_user_type = {
 }
 
 blob_fixups: blob_fixups_user_type = {
+    'system/lib64/libcamera_algoup_jni.xiaomi.so': blob_fixup()
+        .sig_replace('08 AD 40 F9', '08 A9 40 F9'),
     'system/lib64/libmicampostproc_client.so': blob_fixup()
         .remove_needed('libhidltransport.so'),
 }
