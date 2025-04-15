@@ -33,3 +33,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/device_features/alioth.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/device_features/alioth.xml \
     $(LOCAL_PATH)/configs/device_features/aliothin.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/device_features/aliothin.xml
 
+# RRO Overlays
+PRODUCT_PACKAGES += \
+    MiuiCameraAliothOverlay
+
+
