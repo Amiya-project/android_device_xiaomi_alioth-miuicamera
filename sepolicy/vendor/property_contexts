@@ -1,0 +1,2 @@
+# Camera Vendor Props
+vendor.camera.skip_unconfigure.packagelist              u:object_r:vendor_camera_prop:s0
