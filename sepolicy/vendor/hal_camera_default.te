@@ -1,3 +1,5 @@
+typeattribute hal_camera_default mlstrustedsubject;
+
 binder_call(hal_camera_default, platform_app)
 
 # Camera Post Processing
