@@ -1,6 +1,7 @@
 typeattribute hal_camera_default mlstrustedsubject;
 
 binder_call(hal_camera_default, platform_app)
+binder_call(hal_camera_default, platform_app_36)
 
 # Camera Post Processing
 hal_server_domain(hal_camera_default, vendor_hal_camerapostproc_xiaomi)

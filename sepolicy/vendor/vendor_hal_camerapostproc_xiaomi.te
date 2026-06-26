@@ -1,4 +1,5 @@
 allow vendor_hal_camerapostproc_xiaomi platform_app:binder transfer;
+allow vendor_hal_camerapostproc_xiaomi platform_app_36:binder transfer;
 
 allow vendor_hal_camerapostproc_xiaomi vendor_camera_data_file:dir rw_dir_perms;
 allow vendor_hal_camerapostproc_xiaomi vendor_camera_data_file:file rw_file_perms;
