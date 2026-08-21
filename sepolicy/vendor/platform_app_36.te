@@ -9,6 +9,7 @@ binder_call(platform_app_36, hal_camera_default)
 binder_call(platform_app_36, vendor_hal_camerapostproc_xiaomi)
 
 # Allow to read camera props
+get_prop(platform_app_36, camera_prop)
 get_prop(platform_app_36, vendor_camera_prop)
 get_prop(platform_app_36, vendor_camera_sensor_prop)
 
