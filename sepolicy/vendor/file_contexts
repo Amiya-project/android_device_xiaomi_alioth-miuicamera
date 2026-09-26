@@ -1,0 +1,2 @@
+# Camera configs, models, fonts and mimoji
+/(vendor|system/vendor)/camera(/.*)?                        u:object_r:vendor_configs_file:s0
