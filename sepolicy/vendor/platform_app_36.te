@@ -32,3 +32,5 @@ allow platform_app_36 vendor_hal_camerapostproc_xiaomi_hwservice:hwservice_manag
 
 allow platform_app_36 vendor_camera_data_file:dir { append map r_dir_perms write };
 allow platform_app_36 vendor_camera_data_file:file { getattr open read };
+
+allow platform_app_36 user_profile_data_file:dir r_dir_perms;
