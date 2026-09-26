@@ -11,9 +11,14 @@ $(call inherit-product, vendor/xiaomi/alioth-miuicamera/alioth-miuicamera-vendor
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/public.libraries-xiaomi.txt:$(TARGET_COPY_OUT_SYSTEM)/etc/public.libraries-xiaomi.txt
 
-# Priv-app permission
+# Priv-app permissions
 PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/privapp-permissions-miuicamera.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/privapp-permissions-miuicamera.xml
+    $(LOCAL_PATH)/configs/privapp-permissions-miuicamera.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/privapp-permissions-miuicamera.xml \
+    $(LOCAL_PATH)/configs/privapp-permissions-miuiextraphoto.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/privapp-permissions-miuiextraphoto.xml
+
+# Permissions
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/configs/gson.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/gson.xml
 
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \

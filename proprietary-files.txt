@@ -14,3 +14,7 @@ vendor/camera/fonts/FZMiaoWuJW.ttf
 vendor/camera/fonts/MFYueYuan-Regular.ttf
 vendor/camera/fonts/MI+LanTing_GB+Outside+YS_V2.3_20160322.ttf
 vendor/camera/fonts/MIUI_Time.ttf
+
+# ExtraPhoto
+product/priv-app/MiuiExtraPhoto/MiuiExtraPhoto.apk:system/priv-app/MiuiExtraPhoto/MiuiExtraPhoto.apk
+system_ext/framework/gson.jar:system/framework/gson.jar;MAKE_COPY_RULE_ONLY
