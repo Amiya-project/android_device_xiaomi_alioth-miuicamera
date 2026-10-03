@@ -1,0 +1,715 @@
+From 42cf5e3dd6fb9bb8a4a63922235953259e65233f Mon Sep 17 00:00:00 2001
+From: Flicker372 <flicker372@outlook.com>
+Date: Sun, 3 Aug 2025 21:08:51 +0800
+Subject: [PATCH 3/5] =?UTF-8?q?MiuiCamera-alioth:=20Don=E2=80=98t=20take?=
+ =?UTF-8?q?=20over=20brightness=20control?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* MiuiCamera will temporarily take over brightness management, which causes AOSP auto-brightness to crash, so we need to change some functions here to empty implementations.
+---
+ .../com/android/camera/CameraBrightness.smali | 242 +-----------------
+ smali/com/android/camera/CrashHandler.smali   |  83 +-----
+ smali/com/android/camera/Util.smali           | 218 +---------------
+ .../compat/manager/DisplayManagerCompat.smali |   5 -
+ 4 files changed, 10 insertions(+), 538 deletions(-)
+
+diff --git a/smali/com/android/camera/CameraBrightness.smali b/smali/com/android/camera/CameraBrightness.smali
+index 97af470b..e8148584 100644
+--- a/smali/com/android/camera/CameraBrightness.smali
++++ b/smali/com/android/camera/CameraBrightness.smali
+@@ -15,8 +15,6 @@
+ 
+ 
+ # static fields
+-.field public static final SCREEN_AUTO_BRIGHTNESS_RATIO:F = 0.5f
+-
+ .field public static final TAG:Ljava/lang/String; = "CameraBrightness"
+ 
+ 
+@@ -39,8 +37,6 @@
+ 
+ .field public mCurrentActivity:Landroid/app/Activity;
+ 
+-.field public mDisplayManager:Landroid/hardware/display/DisplayManager;
+-
+ .field public mFirstFocusChanged:Z
+ 
+ .field public mPaused:Z
+@@ -68,7 +64,6 @@
+     const/4 v0, 0x0
+ 
+     .line 4
+-    iput v0, p0, Lcom/android/camera/CameraBrightness;->mScreenAutoBrightnessRatio:F
+ 
+     .line 5
+     iput-object p1, p0, Lcom/android/camera/CameraBrightness;->mCurrentActivity:Landroid/app/Activity;
+@@ -83,139 +78,32 @@
+     .line 7
+     iput-boolean p1, p0, Lcom/android/camera/CameraBrightness;->mFirstFocusChanged:Z
+ 
+-    .line 8
+-    invoke-static {}, Lcom/android/camera/CameraAppImpl;->getAndroidContext()Landroid/content/Context;
+-
+-    move-result-object p1
+-
+-    const-class v0, Landroid/hardware/display/DisplayManager;
+-
+-    invoke-virtual {p1, v0}, Landroid/content/Context;->getSystemService(Ljava/lang/Class;)Ljava/lang/Object;
+-
+-    move-result-object p1
+-
+-    check-cast p1, Landroid/hardware/display/DisplayManager;
+-
+-    iput-object p1, p0, Lcom/android/camera/CameraBrightness;->mDisplayManager:Landroid/hardware/display/DisplayManager;
+-
+     return-void
+ .end method
+ 
+ .method private adjustBrightness()V
+-    .locals 7
++    .locals 0
+ 
+     .line 1
+-    iget-object v0, p0, Lcom/android/camera/CameraBrightness;->mCurrentActivity:Landroid/app/Activity;
+-
+-    if-eqz v0, :cond_0
+-
+-    invoke-static {}, LOooO0O0/OooO0Oo/OooO00o/OooO00o;->o0OOOo0O()LOooO0O0/OooO0Oo/OooO00o/OooO00o;
+-
+-    move-result-object v0
+-
+-    invoke-virtual {v0}, LOooO0O0/OooO0Oo/OooO00o/OooO00o;->OooO00o()Z
+-
+-    move-result v0
+-
+-    if-eqz v0, :cond_0
+-
+-    .line 2
+-    invoke-direct {p0}, Lcom/android/camera/CameraBrightness;->cancelLastTask()V
+-
+-    .line 3
+-    new-instance v0, Lcom/android/camera/CameraBrightness$CameraBrightnessTask;
+-
+-    iget-object v2, p0, Lcom/android/camera/CameraBrightness;->mCurrentActivity:Landroid/app/Activity;
+-
+-    iget-boolean v4, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    iget-boolean v5, p0, Lcom/android/camera/CameraBrightness;->mPaused:Z
+-
+-    iget v6, p0, Lcom/android/camera/CameraBrightness;->mScreenAutoBrightnessRatio:F
+-
+-    move-object v1, v0
+-
+-    move-object v3, p0
+-
+-    invoke-direct/range {v1 .. v6}, Lcom/android/camera/CameraBrightness$CameraBrightnessTask;-><init>(Landroid/app/Activity;Lcom/android/camera/CameraBrightnessCallback;ZZF)V
+-
+-    const/4 v1, 0x0
+-
+-    new-array v1, v1, [Ljava/lang/Void;
+-
+-    invoke-virtual {v0, v1}, Landroid/os/AsyncTask;->execute([Ljava/lang/Object;)Landroid/os/AsyncTask;
+-
+-    move-result-object v0
+-
+-    iput-object v0, p0, Lcom/android/camera/CameraBrightness;->mCameraBrightnessTask:Landroid/os/AsyncTask;
+ 
+-    :cond_0
+     return-void
+ .end method
+ 
+ .method private cancelLastTask()V
+-    .locals 2
++    .locals 0
+ 
+     .line 1
+-    iget-object v0, p0, Lcom/android/camera/CameraBrightness;->mCameraBrightnessTask:Landroid/os/AsyncTask;
+-
+-    if-eqz v0, :cond_0
+-
+-    const/4 v1, 0x1
+-
+-    .line 2
+-    invoke-virtual {v0, v1}, Landroid/os/AsyncTask;->cancel(Z)Z
+-
+-    const/4 v0, 0x0
+-
+-    .line 3
+-    iput-object v0, p0, Lcom/android/camera/CameraBrightness;->mCameraBrightnessTask:Landroid/os/AsyncTask;
+ 
+-    :cond_0
+     return-void
+ .end method
+ 
+ 
+ # virtual methods
+ .method public adjustBrightnessInAutoMode(F)V
+-    .locals 1
++    .locals 0
+ 
+     .line 1
+-    :try_start_0
+-    iget-object v0, p0, Lcom/android/camera/CameraBrightness;->mDisplayManager:Landroid/hardware/display/DisplayManager;
+-
+-    invoke-static {v0, p1}, Lcom/xiaomi/compat/manager/DisplayManagerCompat;->setTemporaryAutoBrightnessAdjustment(Landroid/hardware/display/DisplayManager;F)V
+-
+-    .line 2
+-    iput p1, p0, Lcom/android/camera/CameraBrightness;->mScreenAutoBrightnessRatio:F
+-    :try_end_0
+-    .catch Ljava/lang/SecurityException; {:try_start_0 .. :try_end_0} :catch_0
+-
+-    goto :goto_0
+-
+-    :catch_0
+-    move-exception p0
+ 
+-    .line 3
+-    new-instance p1, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {p1}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    const-string v0, "Meet exception when adjustBrightnessInAutoMode(): "
+-
+-    invoke-virtual {p1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {p1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {p1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    const-string p1, "CameraBrightness"
+-
+-    invoke-static {p1, p0}, Lcom/android/camera/log/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    :goto_0
+     return-void
+ .end method
+ 
+@@ -256,142 +144,26 @@
+ .end method
+ 
+ .method public onPause()V
+-    .locals 2
++    .locals 0
+ 
+     .line 1
+-    new-instance v0, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    const-string/jumbo v1, "onPause mUseDefaultValue="
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    iget-boolean v1, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+ 
+-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    const-string v1, "CameraBrightness"
+-
+-    invoke-static {v1, v0}, Lcom/android/camera/log/Log;->v(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const/4 v0, 0x0
+-
+-    .line 2
+-    iput-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mFirstFocusChanged:Z
+-
+-    const/4 v0, 0x1
+-
+-    .line 3
+-    iput-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mPaused:Z
+-
+-    .line 4
+-    iget-boolean v1, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    if-nez v1, :cond_0
+-
+-    .line 5
+-    iput-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    .line 6
+-    invoke-direct {p0}, Lcom/android/camera/CameraBrightness;->adjustBrightness()V
+-
+-    :cond_0
+     return-void
+ .end method
+ 
+ .method public onResume()V
+-    .locals 2
+-
+-    const/4 v0, 0x0
++    .locals 0
+ 
+     .line 1
+-    iput-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    .line 2
+-    iput-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mPaused:Z
+-
+-    const/4 v0, 0x0
+-
+-    .line 3
+-    iput v0, p0, Lcom/android/camera/CameraBrightness;->mScreenAutoBrightnessRatio:F
+-
+-    const-string v0, "CameraBrightness"
+-
+-    const-string/jumbo v1, "onResume adjustBrightness"
+-
+-    .line 4
+-    invoke-static {v0, v1}, Lcom/android/camera/log/Log;->v(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    .line 5
+-    invoke-direct {p0}, Lcom/android/camera/CameraBrightness;->adjustBrightness()V
+ 
+     return-void
+ .end method
+ 
+ .method public onWindowFocusChanged(Z)V
+-    .locals 2
++    .locals 0
+ 
+     .line 1
+-    new-instance v0, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    const-string/jumbo v1, "onWindowFocusChanged hasFocus="
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+-
+-    const-string v1, " mFirstFocusChanged="
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    iget-boolean v1, p0, Lcom/android/camera/CameraBrightness;->mFirstFocusChanged:Z
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Z)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    const-string v1, "CameraBrightness"
+-
+-    invoke-static {v1, v0}, Lcom/android/camera/log/Log;->v(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    .line 2
+-    iget-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mFirstFocusChanged:Z
+-
+-    const/4 v1, 0x1
+-
+-    if-nez v0, :cond_0
+-
+-    if-eqz p1, :cond_0
+-
+-    .line 3
+-    iput-boolean v1, p0, Lcom/android/camera/CameraBrightness;->mFirstFocusChanged:Z
+-
+-    return-void
+-
+-    .line 4
+-    :cond_0
+-    iget-boolean v0, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    if-ne v0, p1, :cond_1
+-
+-    xor-int/2addr p1, v1
+-
+-    .line 5
+-    iput-boolean p1, p0, Lcom/android/camera/CameraBrightness;->mUseDefaultValue:Z
+-
+-    .line 6
+-    invoke-direct {p0}, Lcom/android/camera/CameraBrightness;->adjustBrightness()V
+ 
+-    :cond_1
+     return-void
+ .end method
+ 
+@@ -399,7 +171,6 @@
+     .locals 0
+ 
+     .line 1
+-    iput p1, p0, Lcom/android/camera/CameraBrightness;->mBrightness:I
+ 
+     return-void
+ .end method
+@@ -408,7 +179,6 @@
+     .locals 0
+ 
+     .line 1
+-    iput p1, p0, Lcom/android/camera/CameraBrightness;->mBrightnessMode:I
+ 
+     return-void
+ .end method
+diff --git a/smali/com/android/camera/CrashHandler.smali b/smali/com/android/camera/CrashHandler.smali
+index 54ab97d7..18fc19c7 100644
+--- a/smali/com/android/camera/CrashHandler.smali
++++ b/smali/com/android/camera/CrashHandler.smali
+@@ -59,91 +59,10 @@
+ .end method
+ 
+ .method private resetBrightnessInAutoMode(Landroid/content/Context;)V
+-    .locals 3
+-
+-    const-string p0, "Meet exception when resetBrightnessInAutoMode(): "
+-
+-    const-string v0, "CameraFCHandler"
++    .locals 0
+ 
+     .line 1
+-    invoke-static {}, Lcom/android/camera/CameraAppImpl;->getAndroidContext()Landroid/content/Context;
+-
+-    move-result-object v1
+-
+-    const-class v2, Landroid/hardware/display/DisplayManager;
+-
+-    invoke-virtual {v1, v2}, Landroid/content/Context;->getSystemService(Ljava/lang/Class;)Ljava/lang/Object;
+-
+-    move-result-object v1
+-
+-    check-cast v1, Landroid/hardware/display/DisplayManager;
+-
+-    .line 2
+-    :try_start_0
+-    invoke-virtual {p1}, Landroid/content/Context;->getContentResolver()Landroid/content/ContentResolver;
+-
+-    move-result-object p1
+-
+-    const-string/jumbo v2, "screen_brightness_mode"
+-
+-    invoke-static {p1, v2}, Landroid/provider/Settings$System;->getInt(Landroid/content/ContentResolver;Ljava/lang/String;)I
+-
+-    move-result p1
+-
+-    const/4 v2, 0x1
+-
+-    if-ne v2, p1, :cond_0
+-
+-    const/4 p1, 0x0
+-
+-    .line 3
+-    invoke-static {v1, p1}, Lcom/xiaomi/compat/manager/DisplayManagerCompat;->setTemporaryAutoBrightnessAdjustment(Landroid/hardware/display/DisplayManager;F)V
+-    :try_end_0
+-    .catch Landroid/provider/Settings$SettingNotFoundException; {:try_start_0 .. :try_end_0} :catch_1
+-    .catch Ljava/lang/SecurityException; {:try_start_0 .. :try_end_0} :catch_0
+ 
+-    goto :goto_0
+-
+-    :catch_0
+-    move-exception p1
+-
+-    .line 4
+-    new-instance v1, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    invoke-static {v0, p0}, Lcom/android/camera/log/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    goto :goto_0
+-
+-    :catch_1
+-    move-exception p1
+-
+-    .line 5
+-    new-instance v1, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    invoke-virtual {v1, p0}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object p0
+-
+-    invoke-static {v0, p0}, Lcom/android/camera/log/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    :cond_0
+-    :goto_0
+     return-void
+ .end method
+ 
+diff --git a/smali/com/android/camera/Util.smali b/smali/com/android/camera/Util.smali
+index 2b629224..31a86766 100644
+--- a/smali/com/android/camera/Util.smali
++++ b/smali/com/android/camera/Util.smali
+@@ -19719,239 +19719,27 @@
+ .end method
+ 
+ .method public static setBrightnessRampRate(I)V
+-    .locals 2
++    .locals 0
+ 
+     .line 1
+-    sget-object v0, Lcom/xiaomi/camera/rx/CameraSchedulers;->sCameraWorkScheduler:Lio/reactivex/Scheduler;
+-
+-    new-instance v1, LOooO0O0/OooO0O0/OooO00o/Oooo0;
+-
+-    invoke-direct {v1, p0}, LOooO0O0/OooO0O0/OooO00o/Oooo0;-><init>(I)V
+-
+-    invoke-virtual {v0, v1}, Lio/reactivex/Scheduler;->scheduleDirect(Ljava/lang/Runnable;)Lio/reactivex/disposables/Disposable;
+ 
+     return-void
+ .end method
+ 
+ .method public static setBrightnessRampRate1(I)V
+-    .locals 8
++    .locals 0
+ 
+     .line 1
+-    new-instance v0, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    const-string/jumbo v1, "setBrightnessRampRate1: "
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    const-string v1, "CameraUtil"
+-
+-    invoke-static {v1, v0}, Lcom/android/camera/log/Log;->v(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const-string v0, "android.os.IPowerManager.Stub"
+-
+-    .line 2
+-    :try_start_0
+-    invoke-static {v0}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+-
+-    move-result-object v0
+-
+-    const-string v2, "asInterface"
+-
+-    const/4 v3, 0x1
+-
+-    new-array v4, v3, [Ljava/lang/Class;
+-
+-    .line 3
+-    const-class v5, Landroid/os/IBinder;
+-
+-    const/4 v6, 0x0
+-
+-    aput-object v5, v4, v6
+-
+-    invoke-virtual {v0, v2, v4}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+-
+-    move-result-object v0
+-
+-    const/4 v2, 0x0
+ 
+-    new-array v4, v3, [Ljava/lang/Object;
+-
+-    const-string/jumbo v5, "power"
+-
+-    .line 4
+-    invoke-static {v5}, Landroid/os/ServiceManager;->getService(Ljava/lang/String;)Landroid/os/IBinder;
+-
+-    move-result-object v5
+-
+-    aput-object v5, v4, v6
+-
+-    invoke-virtual {v0, v2, v4}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+-
+-    move-result-object v0
+-
+-    const-string v2, "android.os.IPowerManager"
+-
+-    .line 5
+-    invoke-static {v2}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+-
+-    move-result-object v2
+-
+-    const-string/jumbo v4, "setBrightnessRampRate"
+-
+-    new-array v5, v3, [Ljava/lang/Class;
+-
+-    .line 6
+-    sget-object v7, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
+-
+-    aput-object v7, v5, v6
+-
+-    invoke-virtual {v2, v4, v5}, Ljava/lang/Class;->getMethod(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;
+-
+-    move-result-object v2
+-
+-    new-array v3, v3, [Ljava/lang/Object;
+-
+-    .line 7
+-    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+-
+-    move-result-object p0
+-
+-    aput-object p0, v3, v6
+-
+-    invoke-virtual {v2, v0, v3}, Ljava/lang/reflect/Method;->invoke(Ljava/lang/Object;[Ljava/lang/Object;)Ljava/lang/Object;
+-    :try_end_0
+-    .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
+-
+-    goto :goto_0
+-
+-    :catch_0
+-    const-string p0, "modify screen light ramp rate failed, so screen light will rise slowly!"
+-
+-    .line 8
+-    invoke-static {v1, p0}, Lcom/android/camera/log/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    :goto_0
+     return-void
+ .end method
+ 
+ .method public static setBrightnessRampRate2(I)V
+-    .locals 6
++    .locals 0
+ 
+     .line 1
+-    new-instance v0, Ljava/lang/StringBuilder;
+-
+-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+-
+-    const-string/jumbo v1, "setBrightnessRampRate2: "
+-
+-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0, p0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+-
+-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+-
+-    move-result-object v0
+-
+-    const-string v1, "CameraUtil"
+-
+-    invoke-static {v1, v0}, Lcom/android/camera/log/Log;->v(Ljava/lang/String;Ljava/lang/String;)I
+-
+-    const/4 v0, 0x0
+-
+-    if-nez p0, :cond_0
+-
+-    const/4 p0, 0x1
+-
+-    goto :goto_0
+-
+-    :cond_0
+-    move p0, v0
+-
+-    :goto_0
+-    const-string v2, "display"
+-
+-    .line 2
+-    invoke-static {v2}, Landroid/os/ServiceManager;->getService(Ljava/lang/String;)Landroid/os/IBinder;
+-
+-    move-result-object v2
+-
+-    if-nez v2, :cond_1
+-
+-    return-void
+-
+-    .line 3
+-    :cond_1
+-    invoke-static {}, Landroid/os/Parcel;->obtain()Landroid/os/Parcel;
+-
+-    move-result-object v3
+-
+-    .line 4
+-    invoke-static {}, Landroid/os/Parcel;->obtain()Landroid/os/Parcel;
+ 
+-    move-result-object v4
+-
+-    :try_start_0
+-    const-string v5, "android.view.android.hardware.display.IDisplayManager"
+-
+-    .line 5
+-    invoke-virtual {v3, v5}, Landroid/os/Parcel;->writeInterfaceToken(Ljava/lang/String;)V
+-
+-    .line 6
+-    invoke-virtual {v3, p0}, Landroid/os/Parcel;->writeBoolean(Z)V
+-
+-    const p0, 0xfffffd
+-
+-    .line 7
+-    invoke-interface {v2, p0, v3, v4, v0}, Landroid/os/IBinder;->transact(ILandroid/os/Parcel;Landroid/os/Parcel;I)Z
+-    :try_end_0
+-    .catch Landroid/os/RemoteException; {:try_start_0 .. :try_end_0} :catch_0
+-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+-
+-    .line 8
+-    :goto_1
+-    invoke-virtual {v4}, Landroid/os/Parcel;->recycle()V
+-
+-    .line 9
+-    invoke-virtual {v3}, Landroid/os/Parcel;->recycle()V
+-
+-    goto :goto_2
+-
+-    :catchall_0
+-    move-exception p0
+-
+-    goto :goto_3
+-
+-    :catch_0
+-    :try_start_1
+-    const-string/jumbo p0, "setBrightnessRampRate2 failed!"
+-
+-    .line 10
+-    invoke-static {v1, p0}, Lcom/android/camera/log/Log;->e(Ljava/lang/String;Ljava/lang/String;)I
+-    :try_end_1
+-    .catchall {:try_start_1 .. :try_end_1} :catchall_0
+-
+-    goto :goto_1
+-
+-    :goto_2
+     return-void
+-
+-    .line 11
+-    :goto_3
+-    invoke-virtual {v4}, Landroid/os/Parcel;->recycle()V
+-
+-    .line 12
+-    invoke-virtual {v3}, Landroid/os/Parcel;->recycle()V
+-
+-    .line 13
+-    throw p0
+ .end method
+ 
+ .method public static setFlickSensorEnable(Z)V
+diff --git a/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali b/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali
+index eb492f30..6f62f2c3 100644
+--- a/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali
++++ b/smali_classes2/com/xiaomi/compat/manager/DisplayManagerCompat.smali
+@@ -17,11 +17,6 @@
+     .locals 0
+ 
+     .line 1
+-    :try_start_0
+-    invoke-virtual {p0, p1}, Landroid/hardware/display/DisplayManager;->setTemporaryAutoBrightnessAdjustment(F)V
+-    :try_end_0
+-    .catchall {:try_start_0 .. :try_end_0} :catchall_0
+ 
+-    :catchall_0
+     return-void
+ .end method
+-- 
+2.53.0
+

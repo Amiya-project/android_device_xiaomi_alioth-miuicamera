@@ -1,0 +1,30 @@
+From 2a00a72382d575212280e075fbcdca2ba7279fbd Mon Sep 17 00:00:00 2001
+From: Flicker372 <flicker372@outlook.com>
+Date: Tue, 15 Sep 2026 00:44:32 +0800
+Subject: [PATCH 4/5] MiuiCamera-alioth: skip Security Center CTA dialog to fix
+ first-launch crash
+
+---
+ smali/com/android/camera/Camera.smali | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/smali/com/android/camera/Camera.smali b/smali/com/android/camera/Camera.smali
+index aa70c1af..d67029c7 100644
+--- a/smali/com/android/camera/Camera.smali
++++ b/smali/com/android/camera/Camera.smali
+@@ -3092,11 +3092,7 @@
+     invoke-static {v0, v1}, Lcom/android/camera/log/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+ 
+     .line 2
+-    invoke-static {}, LOooO0O0/OooO0Oo/OooO00o/OooO0O0;->OooO0o()Z
+-
+-    move-result v0
+-
+-    if-nez v0, :cond_5
++    goto :cond_5
+ 
+     invoke-static {}, LOooO0O0/OooO0Oo/OooO00o/OooO00o;->o0OOOo0O()LOooO0O0/OooO0Oo/OooO00o/OooO00o;
+ 
+-- 
+2.53.0
+
